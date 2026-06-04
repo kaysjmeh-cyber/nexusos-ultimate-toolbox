@@ -1,0 +1,20 @@
+{
+  "name": "NexusOS Ultimate Toolbox",
+  "short_name": "NexusOS",
+  "description": "Plateforme modulaire — productivité, dev, sécurité, finances, multimédia, IA locale",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0e17",
+  "theme_color": "#3b82f6",
+  "orientation": "any",
+  "lang": "fr",
+  "categories": ["productivity", "utilities", "developer"],
+  "icons": [
+    {
+      "src": "/icons/nexusos.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

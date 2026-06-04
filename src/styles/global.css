@@ -1,0 +1,202 @@
+/* NexusOS — variables injectées par ThemeRegistry */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--nx-font);
+  background: var(--nx-bg);
+  color: var(--nx-text);
+}
+
+.nx-app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.nx-sidebar {
+  width: 220px;
+  background: var(--nx-surface);
+  border-right: 1px solid var(--nx-border);
+  padding: 1rem;
+}
+
+.nx-logo {
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--nx-accent);
+}
+
+.nx-nav-link {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  color: var(--nx-muted);
+  text-decoration: none;
+  border-radius: var(--nx-radius);
+}
+
+.nx-nav-link.active,
+.nx-nav-link:hover {
+  color: var(--nx-text);
+  background: color-mix(in srgb, var(--nx-accent) 15%, transparent);
+}
+
+.nx-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.nx-topbar {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--nx-border);
+}
+
+.nx-content {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+.nx-muted {
+  color: var(--nx-muted);
+}
+
+.nx-btn {
+  background: var(--nx-accent);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--nx-radius);
+  cursor: pointer;
+}
+
+.nx-palette-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.6);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15vh;
+  z-index: 9000;
+}
+
+.nx-palette {
+  width: min(560px, 92vw);
+  background: var(--nx-surface);
+  border: 1px solid var(--nx-border);
+  border-radius: var(--nx-radius);
+  padding: 1rem;
+}
+
+.nx-palette input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: var(--nx-bg);
+  border: 1px solid var(--nx-border);
+  color: var(--nx-text);
+  border-radius: var(--nx-radius);
+}
+
+.nx-global-search {
+  padding: 0.5rem 1rem;
+}
+
+.nx-global-search input {
+  width: 100%;
+  max-width: 480px;
+  padding: 0.5rem;
+  background: var(--nx-bg);
+  border: 1px solid var(--nx-border);
+  color: var(--nx-text);
+  border-radius: var(--nx-radius);
+}
+
+.nx-offline-banner {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: #b45309;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: var(--nx-radius);
+  z-index: 8000;
+}
+
+.nx-window-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.nx-window {
+  position: absolute;
+  pointer-events: auto;
+  background: var(--nx-surface);
+  border: 1px solid var(--nx-border);
+  border-radius: var(--nx-radius);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 0.4);
+}
+
+.nx-dashboard-grid {
+  min-height: 320px;
+  border: 2px dashed var(--nx-border);
+  border-radius: var(--nx-radius);
+  padding: 2rem;
+}
+
+.nx-module-list {
+  list-style: none;
+  padding: 0;
+}
+
+.nx-module-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--nx-border);
+  align-items: center;
+}
+
+.nx-badge {
+  font-size: 0.75rem;
+  color: var(--nx-muted);
+}
+
+.nx-page-header {
+  margin-bottom: 1rem;
+}
+
+.nx-settings-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.nx-settings-panel {
+  background: var(--nx-surface);
+  border: 1px solid var(--nx-border);
+  border-radius: var(--nx-radius);
+  padding: 1rem;
+}
+
+.nx-settings-panel input[type='text'],
+.nx-settings-panel input[type='number'] {
+  padding: 0.5rem;
+  margin-right: 0.75rem;
+  border: 1px solid var(--nx-border);
+  border-radius: var(--nx-radius);
+  background: var(--nx-bg);
+  color: var(--nx-text);
+}
+
+.nx-settings-panel label {
+  display: block;
+  margin-top: 0.75rem;
+}
