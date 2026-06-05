@@ -11,52 +11,139 @@ const defaultMessages: AIMessage[] = [
   {
     id: 'welcome',
     role: 'assistant',
-    text: '🤖 Bienvenue dans AI Chat ! Je suis NexusBot, votre assistant local. Je peux vous aider avec:\n\n• Navigation dans NexusOS\n• Utilisation des modules\n• Personnalisation des thèmes\n• Gestion des tâches\n• Sécurité et mots de passe\n\nComment puis-je vous aider ?',
+    text: '🤖 Bienvenue dans AI Chat ! Je suis NexusBot, votre assistant local. Je peux vous aider avec:\n\n• Navigation dans NexusOS\n• Utilisation des modules\n• Personnalisation des thèmes\n• Gestion des tâches\n• Sécurité et mots de passe\n• Questions générales\n• Calculs simples\n\nComment puis-je vous aider ?',
     timestamp: Date.now(),
   },
 ];
 
 function generateLocalResponse(prompt: string): string {
-  const normalized = prompt.toLowerCase();
+  const normalized = prompt.toLowerCase().trim();
   
-  if (normalized.includes('bonjour') || normalized.includes('salut') || normalized.includes('hello') || normalized.includes('hi')) {
-    return 'Bonjour ! 👋 Je suis NexusBot. Comment puis-je vous aider aujourd\'hui ?';
+  // Mathématiques simples
+  if (normalized.includes('2+2') || normalized.includes('deux plus deux')) {
+    return '🧮 2 + 2 = 4';
+  }
+  if (normalized.includes('3+3') || normalized.includes('trois plus trois')) {
+    return '🧮 3 + 3 = 6';
+  }
+  if (normalized.includes('5+5') || normalized.includes('cinq plus cinq')) {
+    return '🧮 5 + 5 = 10';
+  }
+  if (normalized.includes('10+10') || normalized.includes('dix plus dix')) {
+    return '🧮 10 + 10 = 20';
+  }
+  if (normalized.match(/\d+\s*\+\s*\d+/)) {
+    const match = normalized.match(/(\d+)\s*\+\s*(\d+)/);
+    if (match) {
+      const a = parseInt(match[1]);
+      const b = parseInt(match[2]);
+      return `🧮 ${a} + ${b} = ${a + b}`;
+    }
+  }
+  if (normalized.match(/\d+\s*-\s*\d+/)) {
+    const match = normalized.match(/(\d+)\s*-\s*(\d+)/);
+    if (match) {
+      const a = parseInt(match[1]);
+      const b = parseInt(match[2]);
+      return `🧮 ${a} - ${b} = ${a - b}`;
+    }
+  }
+  if (normalized.match(/\d+\s*\*\s*\d+/)) {
+    const match = normalized.match(/(\d+)\s*\*\s*(\d+)/);
+    if (match) {
+      const a = parseInt(match[1]);
+      const b = parseInt(match[2]);
+      return `🧮 ${a} × ${b} = ${a * b}`;
+    }
   }
   
+  // Salutations
+  if (normalized.includes('bonjour') || normalized.includes('salut') || normalized.includes('hello') || normalized.includes('hi')) {
+    const greetings = [
+      'Bonjour ! 👋 Je suis NexusBot. Comment puis-je vous aider aujourd\'hui ?',
+      'Salut ! 😊 Je suis prêt à vous aider avec NexusOS ou d\'autres questions.',
+      'Hello ! 🤖 NexusBot à votre service. Que souhaitez-vous savoir ?',
+    ];
+    return greetings[Math.floor(Math.random() * greetings.length)];
+  }
+  if (normalized.includes('bonsoir') || normalized.includes('good evening')) {
+    return 'Bonsoir ! 👋 Comment puis-je vous aider ce soir ?';
+  }
+  if (normalized.includes('au revoir') || normalized.includes('bye') || normalized.includes('ciao')) {
+    return 'Au revoir ! 👋 N\'hésitez pas à revenir si vous avez d\'autres questions sur NexusOS.';
+  }
+  if (normalized.includes('merci') || normalized.includes('thank')) {
+    const thanks = [
+      'Je vous en prie ! 😊 N\'hésitez pas si vous avez d\'autres questions.',
+      'Avec plaisir ! 🤖 Je suis là pour vous aider.',
+      'De rien ! 👍 Y a-t-il autre chose que je puisse faire pour vous ?',
+    ];
+    return thanks[Math.floor(Math.random() * thanks.length)];
+  }
+  
+  // Questions sur NexusOS
   if (normalized.includes('tâche') || normalized.includes('todo') || normalized.includes('task')) {
     return '📋 Pour gérer vos tâches, utilisez le module **Tâches** accessible depuis le dashboard. Vous pouvez créer, modifier et suivre vos tâches facilement.';
   }
-  
   if (normalized.includes('note') || normalized.includes('notes') || normalized.includes('markdown')) {
     return '📝 Le module **Notes Markdown** vous permet de créer des notes avec support Markdown. Idéal pour la documentation et les mémos.';
   }
-  
   if (normalized.includes('thème') || normalized.includes('theme') || normalized.includes('couleur')) {
     return '🎨 Vous pouvez personnaliser l\'apparence dans l\'éditeur de thème ! 5 thèmes sont disponibles:\n\n• **Cyberpunk** - Thème par défaut futuriste\n• **Neon** - Couleurs vives avec effets glow\n• **Minimalist** - Design épuré professionnel\n• **Glassmorphism** - Effets verre modernes\n• **Synthwave** - Esthétique rétro 80s';
   }
-  
   if (normalized.includes('mot de passe') || normalized.includes('password') || normalized.includes('mdp')) {
     return '🔐 Pour la sécurité des mots de passe:\n\n• **Password Vault** - Stockage sécurisé avec chiffrement AES-GCM\n• **Password Generator** - Générateur de mots de passe forts\n• **PGP Tools** - Chiffrement PGP pour communications sécurisées';
   }
-  
   if (normalized.includes('json') || normalized.includes('formatter')) {
     return '💻 Le module **JSON Formatter** permet de formater, valider et beautifier du code JSON rapidement.';
   }
-  
   if (normalized.includes('dashboard') || normalized.includes('accueil')) {
     return '🏠 Le **Dashboard** est votre point de départ. Il affiche les widgets (horloge, système, météo) et les accès rapides aux modules.';
   }
-  
   if (normalized.includes('widget') || normalized.includes('horloge')) {
     return '📊 Le Dashboard inclut 3 widgets:\n\n• **Clock Widget** - Horloge en temps réel\n• **System Monitor** - CPU et mémoire\n• **Weather Widget** - Météo simulée';
   }
   
-  const responses = [
-    'Je suis NexusBot, un assistant local. Je peux vous aider avec l\'utilisation de NexusOS et ses modules. Que souhaitez-vous savoir ?',
-    'Je suis là pour vous guider dans NexusOS. Demandez-moi sur les thèmes, la sécurité, la productivité ou les outils de développement !',
-    'En tant qu\'assistant local, je peux répondre sur les fonctionnalités de NexusOS. Essayez de me poser une question sur un module spécifique.',
+  // Questions générales
+  if (normalized.includes('qui es-tu') || normalized.includes('qui êtes-vous') || normalized.includes('who are you')) {
+    return '🤖 Je suis NexusBot, un assistant local intégré à NexusOS Ultimate Toolbox. Je fonctionne entièrement en local sans connexion à un backend externe.';
+  }
+  if (normalized.includes('que fais-tu') || normalized.includes('que faites-vous') || normalized.includes('what do you do')) {
+    return '🤖 Je suis un assistant qui peut vous aider avec:\n\n• L\'utilisation de NexusOS et ses modules\n• Des calculs simples\n• Des informations générales\n• La navigation dans l\'interface';
+  }
+  if (normalized.includes('heure') || normalized.includes('time') || normalized.includes('quelle heure')) {
+    const now = new Date();
+    return `🕐 Il est actuellement ${now.toLocaleTimeString('fr-FR')}.`;
+  }
+  if (normalized.includes('date') || normalized.includes('quel jour') || normalized.includes('what day')) {
+    const now = new Date();
+    return `📅 Nous sommes le ${now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.`;
+  }
+  if (normalized.includes('météo') || normalized.includes('weather') || normalized.includes('temps')) {
+    return '🌤️ Le widget météo sur le Dashboard affiche une simulation météo. Pour une vraie météo, vous pouvez utiliser un service externe.';
+  }
+  if (normalized.includes('blague') || normalized.includes('joke') || normalized.includes('rigole')) {
+    const jokes = [
+      'Pourquoi les développeurs détestent-ils la nature ? Parce qu\'il y a trop de bugs ! 🐛',
+      'Quel est le comble pour un électricien ? De ne pas être au courant ! ⚡',
+      'Pourquoi les plongeurs plongent-ils toujours en arrière ? Parce que sinon ils tombent dans l\'eau ! 🌊',
+      'Comment appelle-t-on un chat tombé dans un pot de peinture ? Un chat peinture ! 🎨',
+    ];
+    return jokes[Math.floor(Math.random() * jokes.length)];
+  }
+  if (normalized.includes('aide') || normalized.includes('help') || normalized.includes('comment')) {
+    return '❓ Utilisez **Ctrl+K** pour ouvrir la palette de commandes et naviguer rapidement dans l\'application. Vous pouvez aussi utiliser le sidebar pour accéder aux modules.\n\nJe peux aussi répondre à des questions sur NexusOS ou faire des calculs simples.';
+  }
+  
+  // Réponses par défaut variées
+  const defaultResponses = [
+    'Je suis NexusBot, un assistant local. Je peux vous aider avec l\'utilisation de NexusOS, faire des calculs simples, ou répondre à des questions générales. Que souhaitez-vous savoir ?',
+    'Je suis là pour vous aider ! Demandez-moi sur les thèmes, la sécurité, la productivité, les outils de développement, ou posez-moi une question générale.',
+    'En tant qu\'assistant local, je peux répondre sur les fonctionnalités de NexusOS, faire des calculs, ou discuter de sujets généraux. Essayez de me poser une question !',
+    'NexusBot à votre service ! Je peux vous guider dans NexusOS ou répondre à d\'autres questions. N\'hésitez pas à demander.',
+    'Je peux vous aider avec NexusOS et ses nombreux modules, ou répondre à des questions générales. Quelle est votre question ?',
   ];
-  return responses[Math.floor(Math.random() * responses.length)];
+  return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
 }
 
 export function AIChatPage() {
@@ -99,7 +186,7 @@ export function AIChatPage() {
     <section className="nx-page">
       <div className="nx-page-header">
         <h1>AI Chat</h1>
-        <p className="nx-muted">Assistant local NexusBot - Pas de backend externe, réponses rapides pour guider l'utilisation.</p>
+        <p className="nx-muted">Assistant local NexusBot - Réponses rapides pour NexusOS, calculs et questions générales.</p>
       </div>
 
       <div className="nx-settings-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
