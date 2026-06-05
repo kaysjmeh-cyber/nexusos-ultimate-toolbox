@@ -1,13 +1,14 @@
-import type { ModuleManifest } from '@nexus-types/module';
+﻿import type { ModuleManifest } from '@nexus-types/module';
 
 export const moduleManifest: ModuleManifest = {
   id: 'video-tools',
   name: 'Video Tools',
-  description: 'Module video-tools — à implémenter',
+  description: 'Module video-tools â€” Ã  implÃ©menter',
   category: 'multimedia',
   version: '0.0.0',
   routePath: '/modules/multimedia/video-tools',
   permissions: ['storage:read'],
   keywords: ['video-tools'],
-  enabled: false,
+  enabled: true,
 };
+

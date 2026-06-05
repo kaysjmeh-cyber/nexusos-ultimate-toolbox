@@ -1,9 +1,9 @@
-import type { ModuleManifest } from '@nexus-types/module';
+﻿import type { ModuleManifest } from '@nexus-types/module';
 
 export const moduleManifest: ModuleManifest = {
   id: 'theme-editor',
   name: 'Theme Editor',
-  description: 'Module theme-editor — à implémenter',
+  description: 'Module theme-editor â€” Ã  implÃ©menter',
   category: 'customization',
   version: '0.0.0',
   routePath: '/modules/customization/theme-editor',
@@ -11,3 +11,4 @@ export const moduleManifest: ModuleManifest = {
   keywords: ['theme-editor'],
   enabled: true,
 };
+

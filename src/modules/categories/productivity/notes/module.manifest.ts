@@ -1,9 +1,9 @@
-import type { ModuleManifest } from '@nexus-types/module';
+﻿import type { ModuleManifest } from '@nexus-types/module';
 
 export const moduleManifest: ModuleManifest = {
   id: 'notes',
   name: 'Notes',
-  description: 'Module notes — à implémenter',
+  description: 'Module notes â€” Ã  implÃ©menter',
   category: 'productivity',
   version: '0.0.0',
   routePath: '/modules/productivity/notes',
@@ -11,3 +11,4 @@ export const moduleManifest: ModuleManifest = {
   keywords: ['notes'],
   enabled: true,
 };
+

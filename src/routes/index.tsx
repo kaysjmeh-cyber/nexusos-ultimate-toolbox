@@ -15,6 +15,7 @@ import { ThemeEditorPage } from '@modules/categories/customization/theme-editor/
 import { UnitConverterPage } from '@modules/categories/development/unit-converter/UnitConverterPage';
 import { PasswordGeneratorPage } from '@modules/categories/security/password-generator/PasswordGeneratorPage';
 import { JSONFormatterPage } from '@modules/categories/development/json-formatter/JSONFormatterPage';
+import { ImageToolsPage } from '@modules/categories/multimedia/image-tools/ImageToolsPage';
 
 /**
  * Arbre de routes NexusOS — extensible par catégorie / module.
@@ -38,6 +39,8 @@ export const router = createBrowserRouter([
       // AI / Customization
       { path: 'modules/ai-local/ai-chat',             element: <AIChatPage /> },
       { path: 'modules/customization/theme-editor',   element: <ThemeEditorPage /> },
+      // Multimedia
+      { path: 'modules/multimedia/image-tools',      element: <ImageToolsPage /> },
       // Hub / Marketplace / Settings
       { path: 'modules',                element: <ModuleHubPage /> },
       { path: 'modules/:category',      element: <ModuleHubPage /> },

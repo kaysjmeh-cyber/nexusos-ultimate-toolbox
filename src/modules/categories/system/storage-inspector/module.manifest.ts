@@ -1,13 +1,14 @@
-import type { ModuleManifest } from '@nexus-types/module';
+﻿import type { ModuleManifest } from '@nexus-types/module';
 
 export const moduleManifest: ModuleManifest = {
   id: 'storage-inspector',
   name: 'Storage Inspector',
-  description: 'Module storage-inspector — à implémenter',
+  description: 'Module storage-inspector â€” Ã  implÃ©menter',
   category: 'system',
   version: '0.0.0',
   routePath: '/modules/system/storage-inspector',
   permissions: ['storage:read'],
   keywords: ['storage-inspector'],
-  enabled: false,
+  enabled: true,
 };
+
