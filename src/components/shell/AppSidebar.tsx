@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Zap,
+  Image,
 } from 'lucide-react';
 import { useUIStore } from '@stores/ui-store';
 
@@ -49,6 +50,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { to: '/modules/development/json-formatter', label: 'JSON Formatter', icon: <Code2 size={16} /> },
       { to: '/modules/development/unit-converter', label: 'Convertisseur', icon: <ArrowLeftRight size={16} /> },
+      { to: '/modules/multimedia/image-tools', label: 'Image Tools', icon: <Image size={16} /> },
       { to: '/modules/security/password-generator', label: 'Mots de passe', icon: <KeyRound size={16} /> },
       { to: '/modules/security/password-vault', label: 'Coffre-fort', icon: <ShieldCheck size={16} /> },
     ],
