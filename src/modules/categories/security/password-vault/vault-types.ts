@@ -24,3 +24,8 @@ export interface ExportEntry {
   createdAt: number;
   updatedAt: number;
 }
+
+/** Interface pour l'édition avec secret en clair temporaire */
+export interface VaultEntryEdit extends Partial<VaultEntry> {
+  secretPlain?: string;
+}

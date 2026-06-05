@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { VaultEntry } from './vault-types';
+import type { VaultEntry, VaultEntryEdit } from './vault-types';
 import { getAllEntries, saveEntry, deleteEntry, searchEntries, decryptSecretForEntry, exportAll, importAll } from './vault-store';
 
 function generatePassword(length = 16, opts = { lower: true, upper: true, numbers: true, symbols: true }) {
@@ -38,7 +38,7 @@ function passwordStrength(pw = '') {
 export function VaultPage() {
   const [entries, setEntries] = useState<VaultEntry[]>([]);
   const [query, setQuery] = useState('');
-  const [editing, setEditing] = useState<Partial<VaultEntry> & { secretPlain?: string } | null>(null);
+  const [editing, setEditing] = useState<VaultEntryEdit | null>(null);
   const [secretView, setSecretView] = useState<Record<string, string>>({});
 
   async function load() {
@@ -49,8 +49,9 @@ export function VaultPage() {
 
   async function handleSave() {
     if (!editing) return;
-    const secretPlain = (editing as any).secretPlain as string | undefined;
-    await saveEntry({ ...(editing as VaultEntry), secretPlain });
+    const secretPlain = editing.secretPlain;
+    const { secretPlain: _, ...entryWithoutSecretPlain } = editing;
+    await saveEntry({ ...(entryWithoutSecretPlain as VaultEntry), secretPlain });
     setEditing(null);
     await load();
   }
@@ -121,7 +122,7 @@ export function VaultPage() {
           <input placeholder="Category" value={editing.category ?? ''} onChange={(e) => setEditing({ ...editing, category: e.target.value })} />
           <input placeholder="Tags (comma)" value={(editing.tags ?? []).join(',')} onChange={(e) => setEditing({ ...editing, tags: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })} />
           <textarea placeholder="Notes" value={editing.notes ?? ''} onChange={(e) => setEditing({ ...editing, notes: e.target.value })} />
-          <input placeholder="Secret" value={(editing as any).secretPlain ?? ''} onChange={(e) => setEditing({ ...editing, secretPlain: e.target.value })} />
+          <input placeholder="Secret" value={editing.secretPlain ?? ''} onChange={(e) => setEditing({ ...editing, secretPlain: e.target.value })} />
           <div>
             <button className="nx-btn" onClick={() => setEditing({ ...editing, secretPlain: generatePassword(16, { lower: true, upper: true, numbers: true, symbols: true }) })}>Générer mot de passe</button>
             <button className="nx-btn" onClick={handleSave}>Enregistrer</button>

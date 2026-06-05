@@ -7,6 +7,7 @@ import type { SearchDocument } from '@nexus-types/search';
 const STORE = IDB_STORES.modules;
 const KEY = 'password-vault';
 const KEY_KEY = 'password-vault-key';
+const MASTER_PASSWORD_KEY = 'password-vault-master';
 
 function bufToBase64(b: ArrayBuffer) {
   return btoa(String.fromCharCode(...new Uint8Array(b)));
@@ -21,7 +22,17 @@ function base64ToBuf(s: string) {
 }
 
 async function getOrCreateKey(): Promise<CryptoKey> {
-  // try to load raw key from IDB
+  // Check if master password is set
+  const masterData = await storageManager.idb.get<{ salt: string; key: string } | undefined>(STORE, MASTER_PASSWORD_KEY);
+  
+  if (masterData) {
+    // Master password exists - we need to decrypt the vault key with it
+    // For now, we'll throw an error if master password is set but not provided
+    // This is a simplified implementation - in production, you'd prompt for the master password
+    throw new Error('Master password is set. Please provide it to unlock the vault.');
+  }
+
+  // try to load raw key from IDB (no master password)
   const raw = await storageManager.idb.get<string | undefined>(STORE, KEY_KEY);
   if (raw) {
     try {
@@ -38,8 +49,139 @@ async function getOrCreateKey(): Promise<CryptoKey> {
   return key;
 }
 
+/**
+ * Set a master password to protect the vault key
+ * Uses PBKDF2 to derive a key from the password
+ */
+export async function setMasterPassword(password: string): Promise<void> {
+  // Generate a random salt
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  
+  // Derive a key from the password using PBKDF2
+  const encoder = new TextEncoder();
+  const passwordKey = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits', 'deriveKey']
+  );
+  
+  const derivedKey = await crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: salt,
+      iterations: 100000,
+      hash: 'SHA-256',
+    },
+    passwordKey,
+    { name: 'AES-GCM', length: 256 },
+    true,
+    ['encrypt', 'decrypt']
+  );
+  
+  // Get or create the vault key
+  const vaultKey = await getOrCreateKey();
+  const vaultKeyRaw = await crypto.subtle.exportKey('raw', vaultKey);
+  
+  // Encrypt the vault key with the derived key
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encryptedVaultKey = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    derivedKey,
+    vaultKeyRaw
+  );
+  
+  // Store the salt, IV, and encrypted vault key
+  await storageManager.idb.put(STORE, MASTER_PASSWORD_KEY, {
+    salt: bufToBase64(salt.buffer),
+    iv: bufToBase64(iv.buffer),
+    encryptedKey: bufToBase64(encryptedVaultKey),
+  });
+  
+  // Remove the unencrypted vault key
+  await storageManager.idb.delete(STORE, KEY_KEY);
+}
+
+/**
+ * Unlock the vault with the master password
+ */
+export async function unlockVault(password: string): Promise<boolean> {
+  const masterData = await storageManager.idb.get<{ salt: string; iv: string; encryptedKey: string } | undefined>(STORE, MASTER_PASSWORD_KEY);
+  
+  if (!masterData) {
+    // No master password set, vault is already unlocked
+    return true;
+  }
+  
+  try {
+    // Derive the key from the password
+    const encoder = new TextEncoder();
+    const passwordKey = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(password),
+      'PBKDF2',
+      false,
+      ['deriveBits', 'deriveKey']
+    );
+    
+    const derivedKey = await crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: base64ToBuf(masterData.salt),
+        iterations: 100000,
+        hash: 'SHA-256',
+      },
+      passwordKey,
+      { name: 'AES-GCM', length: 256 },
+      true,
+      ['encrypt', 'decrypt']
+    );
+    
+    // Decrypt the vault key
+    const decryptedVaultKey = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: base64ToBuf(masterData.iv) },
+      derivedKey,
+      base64ToBuf(masterData.encryptedKey)
+    );
+    
+    // Store the decrypted vault key in session storage for the current session
+    sessionStorage.setItem('vault-key', bufToBase64(decryptedVaultKey));
+    
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Check if the vault is locked
+ */
+export async function isVaultLocked(): Promise<boolean> {
+  const masterData = await storageManager.idb.get<{ salt: string; iv: string; encryptedKey: string } | undefined>(STORE, MASTER_PASSWORD_KEY);
+  return !!masterData && !sessionStorage.getItem('vault-key');
+}
+
+async function getEncryptionKey(): Promise<CryptoKey> {
+  // Check if master password is set
+  const masterData = await storageManager.idb.get<{ salt: string; iv: string; encryptedKey: string } | undefined>(STORE, MASTER_PASSWORD_KEY);
+  
+  if (masterData) {
+    // Master password is set - use session key
+    const sessionKey = sessionStorage.getItem('vault-key');
+    if (!sessionKey) {
+      throw new Error('Vault is locked. Please unlock with master password.');
+    }
+    const keyBuf = base64ToBuf(sessionKey);
+    return await crypto.subtle.importKey('raw', keyBuf, 'AES-GCM', true, ['encrypt', 'decrypt']);
+  }
+  
+  // No master password - use stored key
+  return await getOrCreateKey();
+}
+
 async function encryptSecret(plaintext: string): Promise<string> {
-  const key = await getOrCreateKey();
+  const key = await getEncryptionKey();
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const enc = new TextEncoder().encode(plaintext);
   const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc);
@@ -52,7 +194,7 @@ async function decryptSecret(stored: string): Promise<string> {
   if (!ivB64 || !cipherB64) return '';
   const iv = new Uint8Array(base64ToBuf(ivB64));
   const cipher = base64ToBuf(cipherB64);
-  const key = await getOrCreateKey();
+  const key = await getEncryptionKey();
   try {
     const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);
     return new TextDecoder().decode(plainBuf);
@@ -81,7 +223,7 @@ export async function saveEntry(e: Partial<VaultEntry> & { secretPlain?: string 
     tags: e.tags ?? [],
     notes: e.notes,
     secret,
-    createdAt: (e as any).createdAt ?? now,
+    createdAt: 'createdAt' in e ? (e.createdAt as number) : now,
     updatedAt: now,
   };
   map[id] = entry;
