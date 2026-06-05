@@ -1,161 +1,233 @@
-﻿import { useMemo, useState, type FormEvent } from 'react';
+﻿import { useMemo, useState, type FormEvent, useEffect, useRef } from 'react';
+import { KNOWLEDGE_BASE } from './knowledge/knowledge-base';
+import { nexusBotStorage } from './knowledge/storage';
+import { detectNavigationCommand } from './knowledge/navigation-commands';
+import { calculate, convertUnits, generateUUID, generatePassword, encodeBase64, decodeBase64, generateQRCode, hexToRgb, rgbToHex, getCurrentTimestamp } from './knowledge/utility-tools';
 
 interface AIMessage {
   id: string;
   role: 'user' | 'assistant';
   text: string;
   timestamp: number;
+  type?: 'text' | 'navigation' | 'tool' | 'action';
 }
 
 const defaultMessages: AIMessage[] = [
   {
     id: 'welcome',
     role: 'assistant',
-    text: '🤖 Bienvenue dans AI Chat ! Je suis NexusBot, votre assistant local. Je peux vous aider avec:\n\n• Navigation dans NexusOS\n• Utilisation des modules\n• Personnalisation des thèmes\n• Gestion des tâches\n• Sécurité et mots de passe\n• Questions générales\n• Calculs simples\n\nComment puis-je vous aider ?',
+    text: '🤖 Bienvenue dans AI Chat ! Je suis NexusBot, votre assistant IA central.\n\nJe peux vous aider avec:\n\n• 🧮 **Calculs** et mathématiques\n• 🍝 **Connaissances générales** (cuisine, IT, programmation, histoire, sciences)\n• 🚀 **Navigation** dans NexusOS (dites "ouvre le dashboard")\n• 🔧 **Outils** (calculatrice, convertisseur, générateurs)\n• 📋 **Modules** NexusOS et fonctionnalités\n\nEssayez de me poser une question !',
     timestamp: Date.now(),
   },
 ];
 
-function generateLocalResponse(prompt: string): string {
+function generateLocalResponse(prompt: string): { text: string; type: AIMessage['type'] } {
   const normalized = prompt.toLowerCase().trim();
   
-  // Mathématiques simples
-  if (normalized.includes('2+2') || normalized.includes('deux plus deux')) {
-    return '🧮 2 + 2 = 4';
+  // Navigation commands
+  const navCommand = detectNavigationCommand(prompt);
+  if (navCommand) {
+    navCommand.action();
+    return { text: `✅ ${navCommand.description}`, type: 'navigation' };
   }
-  if (normalized.includes('3+3') || normalized.includes('trois plus trois')) {
-    return '🧮 3 + 3 = 6';
+  
+  // Calculator
+  if (normalized.match(/^calc\s*\d+/) || normalized.match(/calcul\s*\d+/) || normalized.includes('calcule') || normalized.includes('calculer')) {
+    const mathMatch = prompt.match(/calc\s*(.+)/i) || prompt.match(/calcul\s*(.+)/i);
+    if (mathMatch && mathMatch[1]) {
+      return { text: calculate(mathMatch[1]), type: 'tool' };
+    }
   }
-  if (normalized.includes('5+5') || normalized.includes('cinq plus cinq')) {
-    return '🧮 5 + 5 = 10';
+  
+  // Unit conversion
+  if (normalized.includes('convertir') || normalized.includes('convert')) {
+    const convMatch = prompt.match(/(\d+)\s*(\w+)\s*(en|to)\s*(\w+)/i);
+    if (convMatch && convMatch[1] && convMatch[2] && convMatch[4]) {
+      const value = parseFloat(convMatch[1]);
+      const from = convMatch[2];
+      const to = convMatch[4];
+      return { text: convertUnits(value, from, to), type: 'tool' };
+    }
   }
-  if (normalized.includes('10+10') || normalized.includes('dix plus dix')) {
-    return '🧮 10 + 10 = 20';
+  
+  // UUID generator
+  if (normalized.includes('uuid') || normalized.includes('identifiant unique')) {
+    return { text: `🆔 UUID: ${generateUUID()}`, type: 'tool' };
   }
+  
+  // Password generator
+  if (normalized.includes('générer mot de passe') || normalized.includes('password generator') || normalized.includes('mdp')) {
+    return { text: generatePassword(16), type: 'tool' };
+  }
+  
+  // Base64
+  if (normalized.includes('base64') || normalized.includes('encoder')) {
+    if (normalized.includes('décoder') || normalized.includes('decode')) {
+      const match = prompt.match(/base64\s+(.+)/i);
+      if (match && match[1]) return { text: decodeBase64(match[1]), type: 'tool' };
+    } else {
+      const match = prompt.match(/encoder\s+(.+)/i) || prompt.match(/base64\s+(.+)/i);
+      if (match && match[1]) return { text: encodeBase64(match[1]), type: 'tool' };
+    }
+  }
+  
+  // QR Code
+  if (normalized.includes('qr code') || normalized.includes('qrcode')) {
+    const match = prompt.match(/qr\s*(.+)/i);
+    if (match && match[1]) return { text: generateQRCode(match[1]), type: 'tool' };
+  }
+  
+  // Color conversion
+  if (normalized.includes('hex to rgb') || normalized.includes('rgb to hex')) {
+    const hexMatch = prompt.match(/#?([a-f0-9]{6})/i);
+    if (hexMatch && hexMatch[1] && normalized.includes('hex to rgb')) {
+      return { text: hexToRgb('#' + hexMatch[1]), type: 'tool' };
+    }
+    const rgbMatch = prompt.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/i);
+    if (rgbMatch && rgbMatch[1] && rgbMatch[2] && rgbMatch[3] && normalized.includes('rgb to hex')) {
+      return { text: rgbToHex(parseInt(rgbMatch[1]), parseInt(rgbMatch[2]), parseInt(rgbMatch[3])), type: 'tool' };
+    }
+  }
+  
+  // Timestamp
+  if (normalized.includes('timestamp') || normalized.includes('horodatage')) {
+    return { text: getCurrentTimestamp(), type: 'tool' };
+  }
+  
+  // Math calculations (existing)
   if (normalized.match(/\d+\s*\+\s*\d+/)) {
     const match = normalized.match(/(\d+)\s*\+\s*(\d+)/);
-    if (match) {
+    if (match && match[1] && match[2]) {
       const a = parseInt(match[1]);
       const b = parseInt(match[2]);
-      return `🧮 ${a} + ${b} = ${a + b}`;
+      return { text: `🧮 ${a} + ${b} = ${a + b}`, type: 'tool' };
     }
   }
   if (normalized.match(/\d+\s*-\s*\d+/)) {
     const match = normalized.match(/(\d+)\s*-\s*(\d+)/);
-    if (match) {
+    if (match && match[1] && match[2]) {
       const a = parseInt(match[1]);
       const b = parseInt(match[2]);
-      return `🧮 ${a} - ${b} = ${a - b}`;
+      return { text: `🧮 ${a} - ${b} = ${a - b}`, type: 'tool' };
     }
   }
   if (normalized.match(/\d+\s*\*\s*\d+/)) {
     const match = normalized.match(/(\d+)\s*\*\s*(\d+)/);
-    if (match) {
+    if (match && match[1] && match[2]) {
       const a = parseInt(match[1]);
       const b = parseInt(match[2]);
-      return `🧮 ${a} × ${b} = ${a * b}`;
+      return { text: `🧮 ${a} × ${b} = ${a * b}`, type: 'tool' };
     }
   }
   
-  // Salutations
+  // Knowledge base search
+  for (const entry of KNOWLEDGE_BASE) {
+    for (const keyword of entry.keywords) {
+      if (normalized.includes(keyword)) {
+        const response = entry.responses[Math.floor(Math.random() * entry.responses.length)];
+        if (response) return { text: response, type: 'text' };
+      }
+    }
+  }
+  
+  // Greetings
   if (normalized.includes('bonjour') || normalized.includes('salut') || normalized.includes('hello') || normalized.includes('hi')) {
     const greetings = [
       'Bonjour ! 👋 Je suis NexusBot. Comment puis-je vous aider aujourd\'hui ?',
       'Salut ! 😊 Je suis prêt à vous aider avec NexusOS ou d\'autres questions.',
       'Hello ! 🤖 NexusBot à votre service. Que souhaitez-vous savoir ?',
     ];
-    return greetings[Math.floor(Math.random() * greetings.length)];
+    const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+    return { text: greeting || 'Bonjour !', type: 'text' };
   }
-  if (normalized.includes('bonsoir') || normalized.includes('good evening')) {
-    return 'Bonsoir ! 👋 Comment puis-je vous aider ce soir ?';
-  }
-  if (normalized.includes('au revoir') || normalized.includes('bye') || normalized.includes('ciao')) {
-    return 'Au revoir ! 👋 N\'hésitez pas à revenir si vous avez d\'autres questions sur NexusOS.';
-  }
+  
   if (normalized.includes('merci') || normalized.includes('thank')) {
     const thanks = [
       'Je vous en prie ! 😊 N\'hésitez pas si vous avez d\'autres questions.',
       'Avec plaisir ! 🤖 Je suis là pour vous aider.',
       'De rien ! 👍 Y a-t-il autre chose que je puisse faire pour vous ?',
     ];
-    return thanks[Math.floor(Math.random() * thanks.length)];
+    const thank = thanks[Math.floor(Math.random() * thanks.length)];
+    return { text: thank || 'De rien !', type: 'text' };
   }
   
-  // Questions sur NexusOS
+  // NexusOS-specific questions (existing)
   if (normalized.includes('tâche') || normalized.includes('todo') || normalized.includes('task')) {
-    return '📋 Pour gérer vos tâches, utilisez le module **Tâches** accessible depuis le dashboard. Vous pouvez créer, modifier et suivre vos tâches facilement.';
+    return { text: '📋 Pour gérer vos tâches, utilisez le module **Tâches** accessible depuis le dashboard. Vous pouvez créer, modifier et suivre vos tâches facilement.', type: 'text' };
   }
   if (normalized.includes('note') || normalized.includes('notes') || normalized.includes('markdown')) {
-    return '📝 Le module **Notes Markdown** vous permet de créer des notes avec support Markdown. Idéal pour la documentation et les mémos.';
+    return { text: '📝 Le module **Notes Markdown** vous permet de créer des notes avec support Markdown. Idéal pour la documentation et les mémos.', type: 'text' };
   }
   if (normalized.includes('thème') || normalized.includes('theme') || normalized.includes('couleur')) {
-    return '🎨 Vous pouvez personnaliser l\'apparence dans l\'éditeur de thème ! 5 thèmes sont disponibles:\n\n• **Cyberpunk** - Thème par défaut futuriste\n• **Neon** - Couleurs vives avec effets glow\n• **Minimalist** - Design épuré professionnel\n• **Glassmorphism** - Effets verre modernes\n• **Synthwave** - Esthétique rétro 80s';
+    return { text: '🎨 Vous pouvez personnaliser l\'apparence dans l\'éditeur de thème ! 5 thèmes sont disponibles:\n\n• **Cyberpunk** - Thème par défaut futuriste\n• **Neon** - Couleurs vives avec effets glow\n• **Minimalist** - Design épuré professionnel\n• **Glassmorphism** - Effets verre modernes\n• **Synthwave** - Esthétique rétro 80s', type: 'text' };
   }
   if (normalized.includes('mot de passe') || normalized.includes('password') || normalized.includes('mdp')) {
-    return '🔐 Pour la sécurité des mots de passe:\n\n• **Password Vault** - Stockage sécurisé avec chiffrement AES-GCM\n• **Password Generator** - Générateur de mots de passe forts\n• **PGP Tools** - Chiffrement PGP pour communications sécurisées';
-  }
-  if (normalized.includes('json') || normalized.includes('formatter')) {
-    return '💻 Le module **JSON Formatter** permet de formater, valider et beautifier du code JSON rapidement.';
-  }
-  if (normalized.includes('dashboard') || normalized.includes('accueil')) {
-    return '🏠 Le **Dashboard** est votre point de départ. Il affiche les widgets (horloge, système, météo) et les accès rapides aux modules.';
-  }
-  if (normalized.includes('widget') || normalized.includes('horloge')) {
-    return '📊 Le Dashboard inclut 3 widgets:\n\n• **Clock Widget** - Horloge en temps réel\n• **System Monitor** - CPU et mémoire\n• **Weather Widget** - Météo simulée';
+    return { text: '🔐 Pour la sécurité des mots de passe:\n\n• **Password Vault** - Stockage sécurisé avec chiffrement AES-GCM\n• **Password Generator** - Générateur de mots de passe forts\n• **PGP Tools** - Chiffrement PGP pour communications sécurisées', type: 'text' };
   }
   
-  // Questions générales
-  if (normalized.includes('qui es-tu') || normalized.includes('qui êtes-vous') || normalized.includes('who are you')) {
-    return '🤖 Je suis NexusBot, un assistant local intégré à NexusOS Ultimate Toolbox. Je fonctionne entièrement en local sans connexion à un backend externe.';
-  }
-  if (normalized.includes('que fais-tu') || normalized.includes('que faites-vous') || normalized.includes('what do you do')) {
-    return '🤖 Je suis un assistant qui peut vous aider avec:\n\n• L\'utilisation de NexusOS et ses modules\n• Des calculs simples\n• Des informations générales\n• La navigation dans l\'interface';
-  }
+  // Time and date
   if (normalized.includes('heure') || normalized.includes('time') || normalized.includes('quelle heure')) {
     const now = new Date();
-    return `🕐 Il est actuellement ${now.toLocaleTimeString('fr-FR')}.`;
+    return { text: `🕐 Il est actuellement ${now.toLocaleTimeString('fr-FR')}.`, type: 'text' };
   }
   if (normalized.includes('date') || normalized.includes('quel jour') || normalized.includes('what day')) {
     const now = new Date();
-    return `📅 Nous sommes le ${now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.`;
-  }
-  if (normalized.includes('météo') || normalized.includes('weather') || normalized.includes('temps')) {
-    return '🌤️ Le widget météo sur le Dashboard affiche une simulation météo. Pour une vraie météo, vous pouvez utiliser un service externe.';
-  }
-  if (normalized.includes('blague') || normalized.includes('joke') || normalized.includes('rigole')) {
-    const jokes = [
-      'Pourquoi les développeurs détestent-ils la nature ? Parce qu\'il y a trop de bugs ! 🐛',
-      'Quel est le comble pour un électricien ? De ne pas être au courant ! ⚡',
-      'Pourquoi les plongeurs plongent-ils toujours en arrière ? Parce que sinon ils tombent dans l\'eau ! 🌊',
-      'Comment appelle-t-on un chat tombé dans un pot de peinture ? Un chat peinture ! 🎨',
-    ];
-    return jokes[Math.floor(Math.random() * jokes.length)];
-  }
-  if (normalized.includes('aide') || normalized.includes('help') || normalized.includes('comment')) {
-    return '❓ Utilisez **Ctrl+K** pour ouvrir la palette de commandes et naviguer rapidement dans l\'application. Vous pouvez aussi utiliser le sidebar pour accéder aux modules.\n\nJe peux aussi répondre à des questions sur NexusOS ou faire des calculs simples.';
+    return { text: `📅 Nous sommes le ${now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.`, type: 'text' };
   }
   
-  // Réponses par défaut variées
+  // Help
+  if (normalized.includes('aide') || normalized.includes('help') || normalized.includes('comment')) {
+    return { text: '❓ **Commandes disponibles:**\n\n• Navigation: "ouvre le dashboard", "ouvre les paramètres"\n• Calculs: "calcule 2+2", "convertir 100 km en miles"\n• Outils: "uuid", "générer mot de passe", "base64 encoder"\n• Connaissances: cuisine, programmation, histoire, sciences\n\nUtilisez **Ctrl+K** pour la palette de commandes.', type: 'text' };
+  }
+  
+  // Default responses
   const defaultResponses = [
-    'Je suis NexusBot, un assistant local. Je peux vous aider avec l\'utilisation de NexusOS, faire des calculs simples, ou répondre à des questions générales. Que souhaitez-vous savoir ?',
-    'Je suis là pour vous aider ! Demandez-moi sur les thèmes, la sécurité, la productivité, les outils de développement, ou posez-moi une question générale.',
-    'En tant qu\'assistant local, je peux répondre sur les fonctionnalités de NexusOS, faire des calculs, ou discuter de sujets généraux. Essayez de me poser une question !',
-    'NexusBot à votre service ! Je peux vous guider dans NexusOS ou répondre à d\'autres questions. N\'hésitez pas à demander.',
-    'Je peux vous aider avec NexusOS et ses nombreux modules, ou répondre à des questions générales. Quelle est votre question ?',
+    'Je suis NexusBot, un assistant IA. Je peux répondre à des questions générales, faire des calculs, vous aider avec NexusOS, ou utiliser des outils. Essayez de me poser une question !',
+    'Je suis là pour vous aider ! Demandez-moi sur n\'importe quel sujet - cuisine, programmation, histoire, ou utilisez mes outils intégrés.',
+    'NexusBot à votre service ! Je peux naviguer dans NexusOS, répondre à des questions, ou effectuer des calculs. Que souhaitez-vous savoir ?',
   ];
-  return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+  const response = defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+  return { text: response || 'Comment puis-je vous aider ?', type: 'text' };
 }
 
 export function AIChatPage() {
   const [messages, setMessages] = useState<AIMessage[]>(defaultMessages);
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const chatHistoryRef = useRef<HTMLDivElement>(null);
 
   const canSend = useMemo(() => input.trim().length > 0, [input]);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  // Initialize storage
+  useEffect(() => {
+    nexusBotStorage.init().catch(console.error);
+  }, []);
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    if (chatHistoryRef.current) {
+      chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  // Save chat history
+  useEffect(() => {
+    if (messages.length > 1) {
+      nexusBotStorage.saveChatHistory({
+        id: 'current',
+        messages,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      }).catch(console.error);
+    }
+  }, [messages]);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const text = input.trim();
     if (!text) return;
+
+    setIsLoading(true);
 
     const userMessage: AIMessage = {
       id: `user-${Date.now()}`,
@@ -163,15 +235,28 @@ export function AIChatPage() {
       text,
       timestamp: Date.now(),
     };
+
+    setMessages((current) => [...current, userMessage]);
+    setInput('');
+
+    // Save command to recent commands
+    await nexusBotStorage.addRecentCommand(text).catch(console.error);
+
+    // Generate response
+    const { text: responseText, type } = generateLocalResponse(text);
+    
     const assistantMessage: AIMessage = {
       id: `assistant-${Date.now()}`,
       role: 'assistant',
-      text: generateLocalResponse(text),
+      text: responseText,
       timestamp: Date.now(),
+      type,
     };
 
-    setMessages((current) => [...current, userMessage, assistantMessage]);
-    setInput('');
+    setTimeout(() => {
+      setMessages((current) => [...current, assistantMessage]);
+      setIsLoading(false);
+    }, 300);
   };
 
   const handleClear = () => {
@@ -182,23 +267,50 @@ export function AIChatPage() {
     return new Date(timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   };
 
+  const quickActions = [
+    { label: '🏠 Dashboard', action: () => window.location.href = '/dashboard' },
+    { label: '⚙️ Paramètres', action: () => window.location.href = '/settings' },
+    { label: '🎨 Thèmes', action: () => window.location.href = '/modules/customization/theme-editor' },
+    { label: '🔐 Password Vault', action: () => window.location.href = '/modules/security/password-vault' },
+  ];
+
   return (
     <section className="nx-page">
       <div className="nx-page-header">
         <h1>AI Chat</h1>
-        <p className="nx-muted">Assistant local NexusBot - Réponses rapides pour NexusOS, calculs et questions générales.</p>
+        <p className="nx-muted">Assistant IA NexusBot - Connaissances générales, navigation, calculs et outils intégrés.</p>
       </div>
 
       <div className="nx-settings-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div className="nx-chat-history" style={{
-          minHeight: '400px',
-          maxHeight: '600px',
-          overflowY: 'auto',
-          padding: '1rem',
-          background: 'var(--nx-surface-2)',
-          borderRadius: 'var(--nx-radius)',
-          border: '1px solid var(--nx-border)',
-        }}>
+        {/* Quick Actions */}
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          {quickActions.map((action, index) => (
+            <button
+              key={index}
+              type="button"
+              className="nx-btn nx-btn-secondary"
+              onClick={action.action}
+              style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Chat History */}
+        <div 
+          ref={chatHistoryRef}
+          className="nx-chat-history" 
+          style={{
+            minHeight: '400px',
+            maxHeight: '600px',
+            overflowY: 'auto',
+            padding: '1rem',
+            background: 'var(--nx-surface-2)',
+            borderRadius: 'var(--nx-radius)',
+            border: '1px solid var(--nx-border)',
+          }}
+        >
           {messages.map((message) => (
             <div 
               key={message.id} 
@@ -209,13 +321,22 @@ export function AIChatPage() {
                 borderRadius: 'var(--nx-radius)',
                 background: message.role === 'user' 
                   ? 'rgba(0, 245, 255, 0.1)' 
+                  : message.type === 'navigation'
+                  ? 'rgba(0, 255, 136, 0.1)'
+                  : message.type === 'tool'
+                  ? 'rgba(255, 193, 7, 0.1)'
                   : 'rgba(168, 85, 247, 0.1)',
                 border: message.role === 'user'
                   ? '1px solid rgba(0, 245, 255, 0.2)'
+                  : message.type === 'navigation'
+                  ? '1px solid rgba(0, 255, 136, 0.2)'
+                  : message.type === 'tool'
+                  ? '1px solid rgba(255, 193, 7, 0.2)'
                   : '1px solid rgba(168, 85, 247, 0.2)',
                 maxWidth: '80%',
                 marginLeft: message.role === 'user' ? 'auto' : '0',
                 marginRight: message.role === 'assistant' ? 'auto' : '0',
+                animation: 'fadeInUp 0.3s ease-out',
               }}
             >
               <div style={{ 
@@ -227,10 +348,16 @@ export function AIChatPage() {
                 color: 'var(--nx-muted)',
               }}>
                 <strong style={{ 
-                  color: message.role === 'user' ? 'var(--nx-cyan)' : 'var(--nx-purple)',
+                  color: message.role === 'user' ? 'var(--nx-cyan)' : 
+                         message.type === 'navigation' ? 'var(--nx-green)' :
+                         message.type === 'tool' ? 'var(--nx-yellow)' :
+                         'var(--nx-purple)',
                   fontSize: '0.875rem',
                 }}>
-                  {message.role === 'user' ? 'Vous' : 'NexusBot'}
+                  {message.role === 'user' ? 'Vous' : 
+                   message.type === 'navigation' ? '🧭 Navigation' :
+                   message.type === 'tool' ? '🔧 Outil' :
+                   'NexusBot'}
                 </strong>
                 <span>{formatTime(message.timestamp)}</span>
               </div>
@@ -242,20 +369,34 @@ export function AIChatPage() {
               }}>{message.text}</p>
             </div>
           ))}
+          {isLoading && (
+            <div style={{
+              padding: '0.75rem 1rem',
+              borderRadius: 'var(--nx-radius)',
+              background: 'rgba(168, 85, 247, 0.1)',
+              border: '1px solid rgba(168, 85, 247, 0.2)',
+              maxWidth: '80%',
+              marginLeft: '0',
+            }}>
+              <p style={{ margin: 0, color: 'var(--nx-muted)' }}>🤖 NexusBot réfléchit...</p>
+            </div>
+          )}
         </div>
 
+        {/* Input Form */}
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <form onSubmit={handleSubmit} className="nx-chat-form" style={{ flex: 1, display: 'flex', gap: '0.5rem' }}>
             <input
               type="text"
               value={input}
               onChange={(event) => setInput(event.target.value)}
-              placeholder="Écrivez un message..."
+              placeholder="Posez une question ou tapez une commande..."
               className="nx-input"
               style={{ flex: 1 }}
+              disabled={isLoading}
             />
-            <button type="submit" className="nx-btn" disabled={!canSend}>
-              Envoyer
+            <button type="submit" className="nx-btn" disabled={!canSend || isLoading}>
+              {isLoading ? '...' : 'Envoyer'}
             </button>
           </form>
           <button 
@@ -266,6 +407,11 @@ export function AIChatPage() {
             Effacer
           </button>
         </div>
+
+        {/* Help hint */}
+        <p className="nx-muted" style={{ fontSize: '0.875rem', margin: 0 }}>
+          💡 Essayez: "ouvre le dashboard", "calcule 2+2", "convertir 100 km en miles", "uuid", "comment faire des pâtes"
+        </p>
       </div>
     </section>
   );
