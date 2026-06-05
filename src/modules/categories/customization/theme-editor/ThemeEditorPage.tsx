@@ -1,94 +1,131 @@
-import { useMemo, useState } from 'react';
-import { themeRegistry } from '@themes/registry/theme-registry';
-import type { ThemeManifest } from '@nexus-types/theme';
+import { useUIStore } from '@stores/ui-store';
+import { useCustomThemeStore } from './useCustomThemeStore';
+import { THEMES, getThemeById } from '@themes/index';
+import { useState, useEffect } from 'react';
 
 export function ThemeEditorPage() {
-  const [name, setName] = useState('Mon thème');
-  const [accent, setAccent] = useState('#3b82f6');
-  const [background, setBackground] = useState('#0a0e17');
-  const [text, setText] = useState('#f9fafb');
-  const [darkMode, setDarkMode] = useState(true);
+  const { colorScheme, toggleColorScheme } = useUIStore();
+  const { colors, setColor, resetColors } = useCustomThemeStore();
+  const [selectedTheme, setSelectedTheme] = useState('cyberpunk');
 
-  const themes = useMemo(() => themeRegistry.list(), []);
+  const isDark = colorScheme === 'dark';
 
-  const createTheme = () => {
-    const id = `theme-custom-${Date.now()}`;
-    const theme: ThemeManifest = {
-      id,
-      name,
-      version: '0.1.0',
-      author: 'Utilisateur',
-      dark: darkMode,
-      variables: {
-        '--nx-bg': background,
-        '--nx-surface': darkMode ? '#111827' : '#f8fafc',
-        '--nx-border': darkMode ? '#1f2937' : '#cbd5e1',
-        '--nx-text': text,
-        '--nx-muted': darkMode ? '#9ca3af' : '#6b7280',
-        '--nx-accent': accent,
-        '--nx-accent-hover': accent,
-        '--nx-radius': '8px',
-        '--nx-font': 'system-ui, sans-serif',
-      },
-      meta: { createdAt: Date.now(), updatedAt: Date.now() },
-    };
-    themeRegistry.register(theme);
-    themeRegistry.setActive(id);
-  };
+  // Apply theme CSS file when theme changes
+  useEffect(() => {
+    const theme = getThemeById(selectedTheme);
+    if (theme && theme.cssFile) {
+      // Remove existing theme CSS
+      const existingLink = document.getElementById('theme-css');
+      if (existingLink) {
+        existingLink.remove();
+      }
+      
+      // Add new theme CSS
+      const link = document.createElement('link');
+      link.id = 'theme-css';
+      link.rel = 'stylesheet';
+      link.href = theme.cssFile;
+      document.head.appendChild(link);
+    } else {
+      // Remove theme CSS for default theme
+      const existingLink = document.getElementById('theme-css');
+      if (existingLink) {
+        existingLink.remove();
+      }
+    }
 
-  const activateTheme = async (themeId: string) => {
-    await themeRegistry.setActive(themeId);
-  };
+    // Set data-theme attribute
+    document.documentElement.setAttribute('data-theme', selectedTheme);
+  }, [selectedTheme]);
 
   return (
     <section className="nx-page">
       <div className="nx-page-header">
-        <h1>Theme Editor</h1>
-        <p className="nx-muted">Créer et activer un thème personnalisé rapidement.</p>
+        <h1>Éditeur de Thème</h1>
+        <p className="nx-muted">Personnalisez l'apparence de NexusOS en temps réel.</p>
       </div>
 
-      <div className="nx-settings-panel">
-        <h2>Créer un nouveau thème</h2>
-        <label>
-          Nom du thème
-          <input value={name} onChange={(event) => setName(event.target.value)} />
-        </label>
-        <label>
-          Accent
-          <input type="color" value={accent} onChange={(event) => setAccent(event.target.value)} />
-        </label>
-        <label>
-          Fond
-          <input type="color" value={background} onChange={(event) => setBackground(event.target.value)} />
-        </label>
-        <label>
-          Texte
-          <input type="color" value={text} onChange={(event) => setText(event.target.value)} />
-        </label>
-        <label>
-          Mode sombre
-          <input type="checkbox" checked={darkMode} onChange={(event) => setDarkMode(event.target.checked)} />
-        </label>
-        <button type="button" className="nx-btn" onClick={createTheme}>
-          Enregistrer et activer
-        </button>
-      </div>
-
-      <div className="nx-settings-panel" style={{ marginTop: '1rem' }}>
-        <h2>Thèmes disponibles</h2>
-        <ul className="nx-module-list">
-          {themes.map((theme) => (
-            <li key={theme.id}>
-              <div>
-                <strong>{theme.name}</strong>
-                <p className="nx-muted">ID : {theme.id}</p>
-              </div>
-              <button type="button" className="nx-btn" onClick={() => activateTheme(theme.id)}>
-                Activer
-              </button>
-            </li>
+      <div className="nx-settings-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <h2>Thèmes Prédéfinis</h2>
+        <div className="nx-grid nx-grid-3" style={{ marginBottom: '1rem' }}>
+          {THEMES.map((theme) => (
+            <div
+              key={theme.id}
+              className="nx-card"
+              style={{
+                cursor: 'pointer',
+                padding: '1rem',
+                border: selectedTheme === theme.id ? '2px solid var(--nx-cyan)' : '1px solid var(--nx-border)',
+                background: theme.preview,
+                minHeight: '80px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onClick={() => setSelectedTheme(theme.id)}
+            >
+              <span style={{ 
+                color: theme.id === 'minimalist' ? '#0f172a' : '#ffffff',
+                fontWeight: 600,
+                textShadow: theme.id === 'minimalist' ? 'none' : '0 0 10px rgba(0,0,0,0.5)'
+              }}>
+                {theme.name}
+              </span>
+            </div>
           ))}
-        </ul>
+        </div>
+
+        <h2>Préférences Générales</h2>
+        
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <input 
+            type="checkbox" 
+            checked={isDark} 
+            onChange={toggleColorScheme} 
+          />
+          Mode Sombre
+        </label>
+
+        <h2>Couleurs Personnalisées</h2>
+        <p className="nx-muted" style={{ fontSize: '0.875rem', marginBottom: '1rem' }}>
+          Ces couleurs surchargeront le thème actuel ({isDark ? 'Sombre' : 'Clair'}).
+        </p>
+
+        <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          Couleur d'Accent
+          <input 
+            type="color" 
+            value={colors['--nx-accent'] || (isDark ? '#00f5ff' : '#00f5ff')} 
+            onChange={(e) => setColor('--nx-accent', e.target.value)} 
+          />
+        </label>
+
+        <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          Fond Principal
+          <input 
+            type="color" 
+            value={colors['--nx-bg'] || (isDark ? '#0a0e17' : '#f0f4ff')} 
+            onChange={(e) => setColor('--nx-bg', e.target.value)} 
+          />
+        </label>
+
+        <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          Surface (Panneaux)
+          <input 
+            type="color" 
+            value={colors['--nx-surface'] || (isDark ? '#111827' : '#ffffff')} 
+            onChange={(e) => setColor('--nx-surface', e.target.value)} 
+          />
+        </label>
+
+        <button 
+          type="button" 
+          className="nx-btn" 
+          onClick={resetColors}
+          style={{ marginTop: '1rem', alignSelf: 'flex-start' }}
+        >
+          Réinitialiser les couleurs
+        </button>
       </div>
     </section>
   );

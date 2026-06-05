@@ -7,6 +7,7 @@ import { router } from '@routes/index';
 import { registerServiceWorker } from '@workers/register-sw';
 import { useAppStore } from '@stores/app-store';
 import '@styles/global.css';
+import '@modules/categories/customization/theme-editor/useCustomThemeStore';
 
 async function main() {
   await bootstrapNexusOS();

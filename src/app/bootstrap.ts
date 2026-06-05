@@ -2,10 +2,6 @@ import { storageManager } from '@core/storage/storage-manager';
 import { profileManager } from '@core/profiles/profile-manager';
 import { offlineManager } from '@core/offline/offline-manager';
 import { bootstrapModules } from '@modules/registry';
-import { themeRegistry } from '@themes/registry/theme-registry';
-import { nexusosDefaultTheme } from '@themes/presets/nexusos-default';
-import { lightTheme } from '@themes/presets/light-theme';
-import { solarTheme } from '@themes/presets/solar-theme';
 import { registerCoreCommands } from '@app/commands/core-commands';
 import { eventBus } from '@core/bus/event-bus';
 
@@ -38,10 +34,6 @@ export async function bootstrapNexusOS(): Promise<void> {
   } catch (e) {
     void e;
   }
-  themeRegistry.register(nexusosDefaultTheme);
-  themeRegistry.register(lightTheme);
-  themeRegistry.register(solarTheme);
-  await themeRegistry.setActive(nexusosDefaultTheme.id);
   registerCoreCommands();
   eventBus.emit('app:ready', undefined);
 }

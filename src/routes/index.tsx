@@ -12,10 +12,12 @@ import { TasksPage } from '@modules/categories/productivity/tasks/TasksPage';
 import { VaultPage } from '@modules/categories/security/password-vault/VaultPage';
 import { AIChatPage } from '@modules/categories/ai-local/ai-chat/AIChatPage';
 import { ThemeEditorPage } from '@modules/categories/customization/theme-editor/ThemeEditorPage';
+import { UnitConverterPage } from '@modules/categories/development/unit-converter/UnitConverterPage';
+import { PasswordGeneratorPage } from '@modules/categories/security/password-generator/PasswordGeneratorPage';
+import { JSONFormatterPage } from '@modules/categories/development/json-formatter/JSONFormatterPage';
 
 /**
  * Arbre de routes NexusOS — extensible par catégorie / module.
- * 250+ modules : pattern /modules/:category/:moduleId
  */
 export const router = createBrowserRouter([
   {
@@ -24,19 +26,27 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: 'dashboard', element: <DashboardPage /> },
-        { path: 'modules/productivity/notes', element: <NotesPage /> },
-        { path: 'modules/productivity/tasks', element: <TasksPage /> },
-        { path: 'modules/security/password-vault', element: <VaultPage /> },
-        { path: 'modules/ai-local/ai-chat', element: <AIChatPage /> },
-        { path: 'modules/customization/theme-editor', element: <ThemeEditorPage /> },
-      { path: 'modules', element: <ModuleHubPage /> },
-      { path: 'modules/:category', element: <ModuleHubPage /> },
+      // Productivity
+      { path: 'modules/productivity/notes',  element: <NotesPage /> },
+      { path: 'modules/productivity/tasks',  element: <TasksPage /> },
+      // Security
+      { path: 'modules/security/password-vault',      element: <VaultPage /> },
+      { path: 'modules/security/password-generator',  element: <PasswordGeneratorPage /> },
+      // Development / Tools
+      { path: 'modules/development/unit-converter',   element: <UnitConverterPage /> },
+      { path: 'modules/development/json-formatter',   element: <JSONFormatterPage /> },
+      // AI / Customization
+      { path: 'modules/ai-local/ai-chat',             element: <AIChatPage /> },
+      { path: 'modules/customization/theme-editor',   element: <ThemeEditorPage /> },
+      // Hub / Marketplace / Settings
+      { path: 'modules',                element: <ModuleHubPage /> },
+      { path: 'modules/:category',      element: <ModuleHubPage /> },
       { path: 'modules/:category/:moduleId', element: <ModulePlaceholderPage /> },
-      { path: 'marketplace/plugins', element: <MarketplacePluginsPage /> },
-      { path: 'marketplace/themes', element: <MarketplaceThemesPage /> },
-      { path: 'settings', element: <SettingsPage /> },
-      { path: 'settings/:section', element: <SettingsPage /> },
-      { path: '*', element: <Navigate to="/" replace /> },
+      { path: 'marketplace/plugins',    element: <MarketplacePluginsPage /> },
+      { path: 'marketplace/themes',     element: <MarketplaceThemesPage /> },
+      { path: 'settings',               element: <SettingsPage /> },
+      { path: 'settings/:section',      element: <SettingsPage /> },
+      { path: '*',                      element: <Navigate to="/" replace /> },
     ],
   },
 ]);

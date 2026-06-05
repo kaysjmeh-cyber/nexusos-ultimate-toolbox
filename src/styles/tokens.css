@@ -1,0 +1,126 @@
+/* ============================================================
+   NexusOS — Design Tokens (Cyberpunk / Neon)
+   Importé par global.css
+   ============================================================ */
+
+/* --- Fonts --- */
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/700.css';
+
+:root {
+  /* --- Palette profonde --- */
+  --nx-bg:              #0a0e17;
+  --nx-bg-secondary:    #0d1220;
+  --nx-surface:         rgba(17, 24, 39, 0.85);
+  --nx-surface-solid:   #111827;
+  --nx-surface-2:       rgba(31, 41, 55, 0.70);
+  --nx-border:          rgba(99, 102, 241, 0.18);
+  --nx-border-bright:   rgba(99, 102, 241, 0.45);
+
+  /* --- Additional neon colors --- */
+  --nx-pink:            #ec4899;
+  --nx-pink-dim:        rgba(236, 72, 153, 0.55);
+  --nx-pink-glow:       0 0 8px rgba(236,72,153,0.7), 0 0 24px rgba(236,72,153,0.3);
+  --nx-yellow:          #fbbf24;
+  --nx-yellow-dim:      rgba(251, 191, 36, 0.55);
+  --nx-yellow-glow:     0 0 8px rgba(251,191,36,0.7), 0 0 24px rgba(251,191,36,0.3);
+
+  /* --- Neon accents --- */
+  --nx-cyan:            #00f5ff;
+  --nx-cyan-dim:        rgba(0, 245, 255, 0.55);
+  --nx-cyan-glow:       0 0 8px rgba(0,245,255,0.7), 0 0 24px rgba(0,245,255,0.3);
+  --nx-purple:          #a855f7;
+  --nx-purple-dim:      rgba(168, 85, 247, 0.55);
+  --nx-purple-glow:     0 0 8px rgba(168,85,247,0.7), 0 0 24px rgba(168,85,247,0.3);
+  --nx-magenta:         #f0abfc;
+  --nx-green:           #4ade80;
+  --nx-green-dim:       rgba(74, 222, 128, 0.55);
+  --nx-orange:          #fb923c;
+  --nx-red:             #f87171;
+
+  /* --- Semantic mappings --- */
+  --nx-accent:          var(--nx-cyan);
+  --nx-accent-hover:    #33f8ff;
+  --nx-accent-glow:     var(--nx-cyan-glow);
+  --nx-text:            #f0f4ff;
+  --nx-text-secondary:  #94a3b8;
+  --nx-muted:           #64748b;
+
+  /* --- Typography --- */
+  --nx-font:            'Inter', system-ui, sans-serif;
+  --nx-font-mono:       'JetBrains Mono', 'Fira Code', monospace;
+  --nx-font-size-xs:    0.75rem;
+  --nx-font-size-sm:    0.875rem;
+  --nx-font-size-base:  1rem;
+  --nx-font-size-lg:    1.125rem;
+  --nx-font-size-xl:    1.25rem;
+  --nx-font-size-2xl:   1.5rem;
+  --nx-font-size-3xl:   1.875rem;
+
+  /* --- Spacing --- */
+  --nx-space-1: 0.25rem;
+  --nx-space-2: 0.5rem;
+  --nx-space-3: 0.75rem;
+  --nx-space-4: 1rem;
+  --nx-space-5: 1.25rem;
+  --nx-space-6: 1.5rem;
+  --nx-space-8: 2rem;
+  --nx-space-10: 2.5rem;
+  --nx-space-12: 3rem;
+
+  /* --- Shape --- */
+  --nx-radius:    8px;
+  --nx-radius-sm: 4px;
+  --nx-radius-lg: 12px;
+  --nx-radius-xl: 16px;
+  --nx-radius-full: 9999px;
+
+  /* --- Glassmorphism --- */
+  --nx-glass-bg:      rgba(17, 24, 39, 0.72);
+  --nx-glass-border:  rgba(0, 245, 255, 0.12);
+  --nx-glass-blur:    blur(14px) saturate(1.4);
+
+  /* --- Shadows --- */
+  --nx-shadow-sm:   0 1px 4px rgba(0,0,0,0.45);
+  --nx-shadow-md:   0 4px 16px rgba(0,0,0,0.55);
+  --nx-shadow-lg:   0 8px 32px rgba(0,0,0,0.65);
+  --nx-shadow-glow: 0 0 20px rgba(0,245,255,0.15), 0 8px 32px rgba(0,0,0,0.5);
+
+  /* --- Sidebar --- */
+  --nx-sidebar-width:          220px;
+  --nx-sidebar-collapsed-width: 56px;
+
+  /* --- Transitions --- */
+  --nx-transition-fast:   150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --nx-transition-base:   250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --nx-transition-slow:   400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* --- Z-index scale --- */
+  --nx-z-base:      1;
+  --nx-z-dropdown:  100;
+  --nx-z-modal:     500;
+  --nx-z-toast:     800;
+  --nx-z-palette:   900;
+  --nx-z-overlay:   950;
+  --nx-z-topmost:   1000;
+}
+
+/* Light theme override */
+:root[data-color-scheme="light"] {
+  --nx-bg:             #f0f4ff;
+  --nx-bg-secondary:   #e8edf8;
+  --nx-surface:        rgba(255,255,255,0.88);
+  --nx-surface-solid:  #ffffff;
+  --nx-surface-2:      rgba(240,244,255,0.85);
+  --nx-border:         rgba(99, 102, 241, 0.22);
+  --nx-border-bright:  rgba(99, 102, 241, 0.50);
+  --nx-text:           #0f172a;
+  --nx-text-secondary: #475569;
+  --nx-muted:          #94a3b8;
+  --nx-glass-bg:       rgba(255,255,255,0.75);
+  --nx-glass-border:   rgba(99,102,241,0.18);
+}

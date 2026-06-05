@@ -1,0 +1,59 @@
+/* ============================================================
+   NexusOS — Glassmorphism Theme
+   Heavy glass effects with soft colors
+   ============================================================ */
+
+:root[data-theme="glassmorphism"] {
+  /* --- Backgrounds --- */
+  --nx-bg:              linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --nx-bg-secondary:    linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --nx-surface:         rgba(255, 255, 255, 0.15);
+  --nx-surface-solid:   rgba(255, 255, 255, 0.25);
+  --nx-surface-2:       rgba(255, 255, 255, 0.1);
+  --nx-border:          rgba(255, 255, 255, 0.2);
+  --nx-border-bright:   rgba(255, 255, 255, 0.4);
+
+  /* --- Soft accents --- */
+  --nx-cyan:            #00d4ff;
+  --nx-cyan-dim:        rgba(0, 212, 255, 0.5);
+  --nx-cyan-glow:       0 0 20px rgba(0,212,255,0.4);
+  --nx-purple:          #a855f7;
+  --nx-purple-dim:      rgba(168, 85, 247, 0.5);
+  --nx-purple-glow:     0 0 20px rgba(168,85,247,0.4);
+  --nx-pink:            #f472b6;
+  --nx-pink-dim:        rgba(244, 114, 182, 0.5);
+  --nx-pink-glow:       0 0 20px rgba(244,114,182,0.4);
+  --nx-yellow:          #fbbf24;
+  --nx-yellow-dim:      rgba(251, 191, 36, 0.5);
+  --nx-yellow-glow:     0 0 20px rgba(251,191,36,0.4);
+  --nx-green:           #34d399;
+  --nx-green-dim:       rgba(52, 211, 153, 0.5);
+  --nx-orange:          #fb923c;
+  --nx-red:             #f87171;
+
+  /* --- Semantic mappings --- */
+  --nx-accent:          var(--nx-cyan);
+  --nx-accent-hover:    #00b8e6;
+  --nx-accent-glow:     var(--nx-cyan-glow);
+  --nx-text:            #ffffff;
+  --nx-text-secondary:  rgba(255, 255, 255, 0.85);
+  --nx-muted:           rgba(255, 255, 255, 0.6);
+
+  /* --- Heavy Glassmorphism --- */
+  --nx-glass-bg:      rgba(255, 255, 255, 0.12);
+  --nx-glass-border:  rgba(255, 255, 255, 0.25);
+  --nx-glass-blur:    blur(20px) saturate(1.8);
+
+  /* --- Shadows (soft) --- */
+  --nx-shadow-sm:   0 4px 8px rgba(0,0,0,0.1);
+  --nx-shadow-md:   0 8px 16px rgba(0,0,0,0.15);
+  --nx-shadow-lg:   0 16px 32px rgba(0,0,0,0.2);
+  --nx-shadow-glow: 0 0 40px rgba(255,255,255,0.15), 0 16px 32px rgba(0,0,0,0.2);
+}
+
+/* Override body background for glassmorphism */
+:root[data-theme="glassmorphism"] body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
+}

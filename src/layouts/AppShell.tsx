@@ -1,24 +1,33 @@
 import { Outlet } from 'react-router-dom';
 import { AppSidebar } from '@components/shell/AppSidebar';
 import { AppTopBar } from '@components/shell/AppTopBar';
-import { GlobalSearchBar } from '@features/search/GlobalSearchBar';
+import { StatusBar } from '@components/shell/StatusBar';
 import { OfflineIndicator } from '@components/shell/OfflineIndicator';
+import { Toaster } from '@components/ui/Toaster';
+import { PWAInstallBanner } from '@components/ui/PWAInstallBanner';
+import { CommandPaletteProvider } from '@features/command-palette/command-palette-context';
 
 /**
- * Shell principal NexusOS — multi-fenêtres / widgets en overlay futur.
+ * Shell principal NexusOS — sidebar rétractable, topbar, statusbar,
+ * toaster notifications, indicateur PWA.
+ * CommandPaletteProvider est ici car useNavigate() requiert un Router ancêtre.
  */
 export function AppShell() {
   return (
-    <div className="nx-app">
-      <AppSidebar />
-      <div className="nx-main">
-        <AppTopBar />
-        <GlobalSearchBar />
-        <main className="nx-content">
-          <Outlet />
-        </main>
+    <CommandPaletteProvider>
+      <div className="nx-app">
+        <AppSidebar />
+        <div className="nx-main">
+          <AppTopBar />
+          <main className="nx-content">
+            <PWAInstallBanner />
+            <Outlet />
+          </main>
+          <StatusBar />
+        </div>
+        <OfflineIndicator />
+        <Toaster />
       </div>
-      <OfflineIndicator />
-    </div>
+    </CommandPaletteProvider>
   );
 }
