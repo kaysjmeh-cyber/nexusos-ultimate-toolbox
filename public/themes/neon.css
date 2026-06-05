@@ -1,0 +1,52 @@
+/* ============================================================
+   NexusOS — Neon Theme
+   Bright, vibrant colors with strong glow effects
+   ============================================================ */
+
+:root[data-theme="neon"] {
+  /* --- Backgrounds --- */
+  --nx-bg:              #050505;
+  --nx-bg-secondary:    #0a0a0a;
+  --nx-surface:         rgba(20, 20, 20, 0.95);
+  --nx-surface-solid:   #141414;
+  --nx-surface-2:       rgba(40, 40, 40, 0.85);
+  --nx-border:          rgba(0, 255, 136, 0.3);
+  --nx-border-bright:   rgba(0, 255, 136, 0.6);
+
+  /* --- Neon accents --- */
+  --nx-cyan:            #00ff88;
+  --nx-cyan-dim:        rgba(0, 255, 136, 0.6);
+  --nx-cyan-glow:       0 0 12px rgba(0,255,136,0.9), 0 0 32px rgba(0,255,136,0.5);
+  --nx-purple:          #ff00ff;
+  --nx-purple-dim:      rgba(255, 0, 255, 0.6);
+  --nx-purple-glow:     0 0 12px rgba(255,0,255,0.9), 0 0 32px rgba(255,0,255,0.5);
+  --nx-pink:            #ff0080;
+  --nx-pink-dim:        rgba(255, 0, 128, 0.6);
+  --nx-pink-glow:       0 0 12px rgba(255,0,128,0.9), 0 0 32px rgba(255,0,128,0.5);
+  --nx-yellow:          #ffff00;
+  --nx-yellow-dim:      rgba(255, 255, 0, 0.6);
+  --nx-yellow-glow:     0 0 12px rgba(255,255,0,0.9), 0 0 32px rgba(255,255,0,0.5);
+  --nx-green:           #00ff00;
+  --nx-green-dim:       rgba(0, 255, 0, 0.6);
+  --nx-orange:          #ff8000;
+  --nx-red:             #ff0040;
+
+  /* --- Semantic mappings --- */
+  --nx-accent:          var(--nx-cyan);
+  --nx-accent-hover:    #00ffaa;
+  --nx-accent-glow:     var(--nx-cyan-glow);
+  --nx-text:            #ffffff;
+  --nx-text-secondary:  #cccccc;
+  --nx-muted:           #888888;
+
+  /* --- Glassmorphism --- */
+  --nx-glass-bg:      rgba(20, 20, 20, 0.85);
+  --nx-glass-border:  rgba(0, 255, 136, 0.3);
+  --nx-glass-blur:    blur(16px) saturate(1.6);
+
+  /* --- Shadows --- */
+  --nx-shadow-sm:   0 2px 8px rgba(0,0,0,0.8);
+  --nx-shadow-md:   0 8px 24px rgba(0,0,0,0.9);
+  --nx-shadow-lg:   0 16px 48px rgba(0,0,0,0.95);
+  --nx-shadow-glow: 0 0 30px rgba(0,255,136,0.3), 0 16px 48px rgba(0,0,0,0.9);
+}

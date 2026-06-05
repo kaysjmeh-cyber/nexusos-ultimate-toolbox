@@ -1,7 +1,58 @@
 import { useUIStore } from '@stores/ui-store';
 import { useCustomThemeStore } from './useCustomThemeStore';
-import { THEMES, getThemeById } from '@themes/index';
 import { useState, useEffect } from 'react';
+
+interface Theme {
+  id: string;
+  name: string;
+  description: string;
+  preview: string;
+  cssFile: string;
+  category: 'default' | 'modern' | 'retro' | 'minimal';
+}
+
+const THEMES: Theme[] = [
+  {
+    id: 'cyberpunk',
+    name: 'Cyberpunk',
+    description: 'Futuristic neon aesthetic with cyan and purple accents',
+    preview: 'linear-gradient(135deg, #0a0e17 0%, #1a1f3a 100%)',
+    cssFile: '',
+    category: 'default',
+  },
+  {
+    id: 'neon',
+    name: 'Neon',
+    description: 'Bright vibrant colors with strong glow effects',
+    preview: 'linear-gradient(135deg, #050505 0%, #00ff88 100%)',
+    cssFile: '/themes/neon.css',
+    category: 'modern',
+  },
+  {
+    id: 'minimalist',
+    name: 'Minimalist',
+    description: 'Clean, simple, professional design',
+    preview: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+    cssFile: '/themes/minimalist.css',
+    category: 'minimal',
+  },
+  {
+    id: 'glassmorphism',
+    name: 'Glassmorphism',
+    description: 'Heavy glass effects with soft gradient backgrounds',
+    preview: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    cssFile: '/themes/glassmorphism.css',
+    category: 'modern',
+  },
+  {
+    id: 'synthwave',
+    name: 'Synthwave',
+    description: 'Retro 80s aesthetic with vibrant purples and pinks',
+    preview: 'linear-gradient(135deg, #1a0b2e 0%, #ff0080 100%)',
+    cssFile: '/themes/synthwave.css',
+    category: 'retro',
+  },
+];
 
 export function ThemeEditorPage() {
   const { colorScheme, toggleColorScheme } = useUIStore();
@@ -12,7 +63,7 @@ export function ThemeEditorPage() {
 
   // Apply theme CSS file when theme changes
   useEffect(() => {
-    const theme = getThemeById(selectedTheme);
+    const theme = THEMES.find((t) => t.id === selectedTheme);
     if (theme && theme.cssFile) {
       // Remove existing theme CSS
       const existingLink = document.getElementById('theme-css');

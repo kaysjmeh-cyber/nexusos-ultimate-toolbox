@@ -1,0 +1,67 @@
+/* ============================================================
+   NexusOS — Synthwave Theme
+   Retro 80s aesthetic with vibrant purples and pinks
+   ============================================================ */
+
+:root[data-theme="synthwave"] {
+  /* --- Backgrounds --- */
+  --nx-bg:              #1a0b2e;
+  --nx-bg-secondary:    #2d1b4e;
+  --nx-surface:         rgba(45, 27, 78, 0.9);
+  --nx-surface-solid:   #2d1b4e;
+  --nx-surface-2:       rgba(93, 63, 211, 0.7);
+  --nx-border:          rgba(236, 72, 153, 0.3);
+  --nx-border-bright:   rgba(236, 72, 153, 0.6);
+
+  /* --- Synthwave accents --- */
+  --nx-cyan:            #00f5ff;
+  --nx-cyan-dim:        rgba(0, 245, 255, 0.5);
+  --nx-cyan-glow:       0 0 16px rgba(0,245,255,0.8), 0 0 40px rgba(0,245,255,0.4);
+  --nx-purple:          #ff00ff;
+  --nx-purple-dim:      rgba(255, 0, 255, 0.5);
+  --nx-purple-glow:     0 0 16px rgba(255,0,255,0.8), 0 0 40px rgba(255,0,255,0.4);
+  --nx-pink:            #ff0080;
+  --nx-pink-dim:        rgba(255, 0, 128, 0.5);
+  --nx-pink-glow:       0 0 16px rgba(255,0,128,0.8), 0 0 40px rgba(255,0,128,0.4);
+  --nx-yellow:          #ffff00;
+  --nx-yellow-dim:      rgba(255, 255, 0, 0.5);
+  --nx-yellow-glow:     0 0 16px rgba(255,255,0,0.8), 0 0 40px rgba(255,255,0,0.4);
+  --nx-green:           #00ff80;
+  --nx-green-dim:       rgba(0, 255, 128, 0.5);
+  --nx-orange:          #ff8000;
+  --nx-red:             #ff0040;
+
+  /* --- Semantic mappings --- */
+  --nx-accent:          var(--nx-pink);
+  --nx-accent-hover:    #ff0099;
+  --nx-accent-glow:     var(--nx-pink-glow);
+  --nx-text:            #ffffff;
+  --nx-text-secondary:  #e0e0ff;
+  --nx-muted:           #a0a0c0;
+
+  /* --- Glassmorphism --- */
+  --nx-glass-bg:      rgba(45, 27, 78, 0.85);
+  --nx-glass-border:  rgba(236, 72, 153, 0.3);
+  --nx-glass-blur:    blur(12px) saturate(1.5);
+
+  /* --- Shadows --- */
+  --nx-shadow-sm:   0 2px 8px rgba(0,0,0,0.6);
+  --nx-shadow-md:   0 8px 24px rgba(0,0,0,0.7);
+  --nx-shadow-lg:   0 16px 48px rgba(0,0,0,0.8);
+  --nx-shadow-glow: 0 0 30px rgba(236,72,153,0.3), 0 16px 48px rgba(0,0,0,0.8);
+}
+
+/* Synthwave grid background */
+:root[data-theme="synthwave"] body {
+  background: 
+    linear-gradient(rgba(236, 72, 153, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(236, 72, 153, 0.1) 1px, transparent 1px),
+    linear-gradient(135deg, #1a0b2e 0%, #2d1b4e 50%, #1a0b2e 100%);
+  background-size: 50px 50px, 50px 50px, 400% 400%;
+  animation: gradientShift 15s ease infinite, gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+  0% { background-position: 0 0, 0 0, 0% 50%; }
+  100% { background-position: 50px 50px, 50px 50px, 100% 50%; }
+}
