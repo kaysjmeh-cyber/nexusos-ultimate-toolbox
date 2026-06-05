@@ -1,4 +1,4 @@
-ï»¿import { useMemo, useState, type FormEvent } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 
 interface AIMessage {
   id: string;
@@ -11,7 +11,7 @@ const defaultMessages: AIMessage[] = [
   {
     id: 'welcome',
     role: 'assistant',
-    text: 'ğŸ¤– Bienvenue dans AI Chat ! Je suis NexusBot, votre assistant local. Je peux vous aider avec:\n\nâ€¢ Navigation dans NexusOS\nâ€¢ Utilisation des modules\nâ€¢ Personnalisation des thÃ¨mes\nâ€¢ Gestion des tÃ¢ches\nâ€¢ SÃ©curitÃ© et mots de passe\n\nComment puis-je vous aider ?',
+    text: '?? Bienvenue dans AI Chat ! Je suis NexusBot, votre assistant local. Je peux vous aider avec:\n\n• Navigation dans NexusOS\n• Utilisation des modules\n• Personnalisation des thèmes\n• Gestion des tâches\n• Sécurité et mots de passe\n\nComment puis-je vous aider ?',
     timestamp: Date.now(),
   },
 ];
@@ -20,48 +20,48 @@ function generateLocalResponse(prompt: string): string {
   const normalized = prompt.toLowerCase();
   
   if (normalized.includes('bonjour') || normalized.includes('salut') || normalized.includes('hello') || normalized.includes('hi')) {
-    return 'Bonjour ! ğŸ‘‹ Je suis NexusBot. Comment puis-je vous aider aujourd''hui ?';
+    return 'Bonjour ! ?? Je suis NexusBot. Comment puis-je vous aider aujourd\'hui ?';
   }
   
-  if (normalized.includes('tÃ¢che') || normalized.includes('todo') || normalized.includes('task')) {
-    return 'ğŸ“‹ Pour gÃ©rer vos tÃ¢ches, utilisez le module **TÃ¢ches** accessible depuis le dashboard. Vous pouvez crÃ©er, modifier et suivre vos tÃ¢ches facilement.';
+  if (normalized.includes('tâche') || normalized.includes('todo') || normalized.includes('task')) {
+    return '?? Pour gérer vos tâches, utilisez le module **Tâches** accessible depuis le dashboard. Vous pouvez créer, modifier et suivre vos tâches facilement.';
   }
   
   if (normalized.includes('note') || normalized.includes('notes') || normalized.includes('markdown')) {
-    return 'ğŸ“ Le module **Notes Markdown** vous permet de crÃ©er des notes avec support Markdown. IdÃ©al pour la documentation et les mÃ©mos.';
+    return '?? Le module **Notes Markdown** vous permet de créer des notes avec support Markdown. Idéal pour la documentation et les mémos.';
   }
   
-  if (normalized.includes('thÃ¨me') || normalized.includes('theme') || normalized.includes('couleur')) {
-    return 'ğŸ¨ Vous pouvez personnaliser l''apparence dans l''Ã©diteur de thÃ¨me ! 5 thÃ¨mes sont disponibles:\n\nâ€¢ **Cyberpunk** - ThÃ¨me par dÃ©faut futuriste\nâ€¢ **Neon** - Couleurs vives avec effets glow\nâ€¢ **Minimalist** - Design Ã©purÃ© professionnel\nâ€¢ **Glassmorphism** - Effets verre modernes\nâ€¢ **Synthwave** - EsthÃ©tique rÃ©tro 80s';
+  if (normalized.includes('thème') || normalized.includes('theme') || normalized.includes('couleur')) {
+    return '?? Vous pouvez personnaliser l\'apparence dans l\'éditeur de thème ! 5 thèmes sont disponibles:\n\n• **Cyberpunk** - Thème par défaut futuriste\n• **Neon** - Couleurs vives avec effets glow\n• **Minimalist** - Design épuré professionnel\n• **Glassmorphism** - Effets verre modernes\n• **Synthwave** - Esthétique rétro 80s';
   }
   
   if (normalized.includes('mot de passe') || normalized.includes('password') || normalized.includes('mdp')) {
-    return 'ğŸ” Pour la sÃ©curitÃ© des mots de passe:\n\nâ€¢ **Password Vault** - Stockage sÃ©curisÃ© avec chiffrement AES-GCM\nâ€¢ **Password Generator** - GÃ©nÃ©rateur de mots de passe forts\nâ€¢ **PGP Tools** - Chiffrement PGP pour communications sÃ©curisÃ©es';
+    return '?? Pour la sécurité des mots de passe:\n\n• **Password Vault** - Stockage sécurisé avec chiffrement AES-GCM\n• **Password Generator** - Générateur de mots de passe forts\n• **PGP Tools** - Chiffrement PGP pour communications sécurisées';
   }
   
   if (normalized.includes('json') || normalized.includes('formatter')) {
-    return 'ğŸ’» Le module **JSON Formatter** permet de formater, valider et beautifier du code JSON rapidement.';
+    return '?? Le module **JSON Formatter** permet de formater, valider et beautifier du code JSON rapidement.';
   }
   
   if (normalized.includes('dashboard') || normalized.includes('accueil')) {
-    return 'ğŸ  Le **Dashboard** est votre point de dÃ©part. Il affiche les widgets (horloge, systÃ¨me, mÃ©tÃ©o) et les accÃ¨s rapides aux modules.';
+    return '?? Le **Dashboard** est votre point de départ. Il affiche les widgets (horloge, système, météo) et les accès rapides aux modules.';
   }
   
   if (normalized.includes('widget') || normalized.includes('horloge')) {
-    return 'ğŸ“Š Le Dashboard inclut 3 widgets:\n\nâ€¢ **Clock Widget** - Horloge en temps rÃ©el\nâ€¢ **System Monitor** - CPU et mÃ©moire\nâ€¢ **Weather Widget** - MÃ©tÃ©o simulÃ©e';
+    return '?? Le Dashboard inclut 3 widgets:\n\n• **Clock Widget** - Horloge en temps réel\n• **System Monitor** - CPU et mémoire\n• **Weather Widget** - Météo simulée';
   }
   
   const responses = [
-    'Je suis NexusBot, un assistant local. Je peux vous aider avec l''utilisation de NexusOS et ses modules. Que souhaitez-vous savoir ?',
-    'Je suis lÃ  pour vous guider dans NexusOS. Demandez-moi sur les thÃ¨mes, la sÃ©curitÃ©, la productivitÃ© ou les outils de dÃ©veloppement !',
-    'En tant qu''assistant local, je peux rÃ©pondre sur les fonctionnalitÃ©s de NexusOS. Essayez de me poser une question sur un module spÃ©cifique.',
+    'Je suis NexusBot, un assistant local. Je peux vous aider avec l\'utilisation de NexusOS et ses modules. Que souhaitez-vous savoir ?',
+    'Je suis là pour vous guider dans NexusOS. Demandez-moi sur les thèmes, la sécurité, la productivité ou les outils de développement !',
+    'En tant qu\'assistant local, je peux répondre sur les fonctionnalités de NexusOS. Essayez de me poser une question sur un module spécifique.',
   ];
   return responses[Math.floor(Math.random() * responses.length)];
 }
 
 export function AIChatPage() {
   const [messages, setMessages] = useState<AIMessage[]>(defaultMessages);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState(\');
 
   const canSend = useMemo(() => input.trim().length > 0, [input]);
 
@@ -84,7 +84,7 @@ export function AIChatPage() {
     };
 
     setMessages((current) => [...current, userMessage, assistantMessage]);
-    setInput('');
+    setInput(\');
   };
 
   const handleClear = () => {
@@ -99,7 +99,7 @@ export function AIChatPage() {
     <section className="nx-page">
       <div className="nx-page-header">
         <h1>AI Chat</h1>
-        <p className="nx-muted">Assistant local NexusBot - Pas de backend externe, rÃ©ponses rapides pour guider l'utilisation.</p>
+        <p className="nx-muted">Assistant local NexusBot - Pas de backend externe, réponses rapides pour guider l'utilisation.</p>
       </div>
 
       <div className="nx-settings-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -163,7 +163,7 @@ export function AIChatPage() {
               type="text"
               value={input}
               onChange={(event) => setInput(event.target.value)}
-              placeholder="Ã‰crivez un message..."
+              placeholder="Écrivez un message..."
               className="nx-input"
               style={{ flex: 1 }}
             />
